@@ -40,14 +40,8 @@ def traverse(points)
 
   steps = 0
   points.map do |x, y|
-    if steps_memo[[x,y]]
-      steps = steps_memo[[x,y]]
-    else
-      steps += 1
-      steps_memo[[x,y]] = steps
-    end
-
-    [x,y,steps]
+    steps += 1
+    [x,y, steps_memo[[x,y]] ||= steps]
   end
 end
 
@@ -55,13 +49,10 @@ def combined_steps(intersection, steps_a, steps_b)
   a = steps_a.find {|x,y,z| x == intersection[0] && y == intersection[1]}[2]
   b = steps_b.find {|x,y,z| x == intersection[0] && y == intersection[1]}[2]
 
-  puts "#{a} + #{b} = #{a + b}"
-
   a + b
 end
 
 def part1(lines)
-  # puts line_to_points(lines)
   # points_a = line_to_points(["R75",'D30','R83','U83','L12','D49','R71','U7','L72'])
   # points_b = line_to_points(["U62","R66","U55","R34","D71","R55","D58",'R83'])
   points_a = line_to_points(lines[0])
@@ -92,7 +83,5 @@ def part2(lines)
   ap distances
 end
 
-# part1(lines)
+part1(lines)
 part2(lines)
-
-# ap traverse([[0,0], [0,1], [0,1], [0,2]])
