@@ -30,11 +30,11 @@ def strict_adjacent_digits?(n)
 end
 
 def part1(a, b)
-  (a..b).map {|n| adjacent_digits?(n) && increasing?(n) }.count(true)
+  (a..b).count {|n| adjacent_digits?(n) && increasing?(n) }
 end
 
 def part2(a, b)
-  (a..b).map {|n| increasing?(n) && strict_adjacent_digits?(n)}.count(true)
+  (a..b).count {|n| increasing?(n) && strict_adjacent_digits?(n)}
 end
 
 a = 236491
