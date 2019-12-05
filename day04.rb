@@ -15,20 +15,18 @@ def increasing?(n)
 end
 
 def strict_adjacent_digits?(n)
-  str = n.to_s
-  streaks = str.each_char.slice_when {|a, b| a != b}.map(&:size)
-
+  streaks = n.to_s.each_char.slice_when {|a, b| a != b}.map(&:size)
   return true if streaks.select {|x| x >= 2}.min == 2
 
   false
 end
 
 def part1(a, b)
-  (a..b).count {|n| adjacent_digits?(n) && increasing?(n) }
+  (a..b).count { |n| increasing?(n) && adjacent_digits?(n) }
 end
 
 def part2(a, b)
-  (a..b).count {|n| increasing?(n) && strict_adjacent_digits?(n)}
+  (a..b).count { |n| increasing?(n) && strict_adjacent_digits?(n) }
 end
 
 puts part1(236491, 713787)
