@@ -16,11 +16,6 @@ def parse_instruction(instr)
   }
 end
 
-def resolve_argument(value, arg_num, memory, instruction)
-  return value if instruction[:args_immediate][arg_num]
-  memory[value]
-end
-
 # given ints, execute instruction at pos and return new state
 def execute(state)
   memory = state[:memory].dup
@@ -31,8 +26,8 @@ def execute(state)
   b = memory[pos + 2]
   c = memory[pos + 3]
 
-  v1 = resolve_argument(a, 1, memory, instr)
-  v2 = resolve_argument(b, 2, memory, instr)
+  v1 = instr[:args_immediate][1] ? a : memory[a]
+  v2 = instr[:args_immediate][2] ? b : memory[b]
 
   new_pos = pos
   halted = false
@@ -48,8 +43,8 @@ def execute(state)
     new_pos += 4
 
   elsif instr[:opcode] == '03'
-    # input = 1
-    input = 5
+    input = 1 # part 1
+    # input = 5 # part  2
     puts "memory[#{a}] = #{input}"
     memory[a] = input
     new_pos += 2
