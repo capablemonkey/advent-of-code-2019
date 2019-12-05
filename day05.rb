@@ -18,14 +18,14 @@ end
 
 def resolve_argument(value, arg_num, memory, instruction)
   return value if instruction[:args_immediate][arg_num]
-
   memory[value]
 end
 
 # given ints, execute instruction at pos and return new state
-def execute(ints, pos)
-  memory = ints.dup
-  instr = parse_instruction(ints[pos])
+def execute(state)
+  memory = state[:memory].dup
+  pos = state[:pos]
+  instr = parse_instruction(memory[pos])
 
   a = memory[pos + 1]
   b = memory[pos + 2]
@@ -35,14 +35,15 @@ def execute(ints, pos)
   v2 = resolve_argument(b, 2, memory, instr)
 
   new_pos = pos
+  halted = false
 
   if instr[:opcode] == '01'
-    puts "#{c} = #{v1} + #{v2}"
+    puts "memory[#{c}] = #{v1} + #{v2}"
     memory[c] = v1 + v2
     new_pos += 4
 
   elsif instr[:opcode] == '02'
-    puts "#{c} = #{v1} * #{v2}"
+    puts "memory[#{c}] = #{v1} * #{v2}"
     memory[c] = v1 * v2
     new_pos += 4
 
@@ -81,28 +82,27 @@ def execute(ints, pos)
     memory[c] = v1 == v2 ? 1 : 0
     new_pos += 4
 
+  elsif instr[:opcode] == '99'
+    halted = true
   else
     raise "dunno what to do with #{instr[:opcode]}"
   end
 
   return {
     memory: memory,
-    new_pos: new_pos
+    pos: new_pos,
+    halted: halted
   }
 end
 
 def run_until_halt(ints)
-  memory = ints.dup
-  pos = 0
+  state = { memory: ints.dup, pos: 0, halted: false }
 
-  while memory[pos] != 99
-    new_state = execute(memory, pos)
-
-    memory = new_state[:memory]
-    pos = new_state[:new_pos]
+  while state[:halted] != true
+    state = execute(state)
   end
 
-  memory
+  state
 end
 
 run_until_halt(ints)
