@@ -1,20 +1,14 @@
-require 'ap'
-
 def adjacent_digits?(n)
-  str = n.to_s
-
-  str.each_char.with_index do |num, i|
-    return true if num == str[i + 1]
+  n.to_s.each_char.each_cons(2) do |a, b|
+    return true if a == b
   end
 
   false
 end
 
 def increasing?(n)
-  str = n.to_s
-
-  str.each_char.with_index do |num, i|
-    return false if str[i + 1] && (num.to_i > str[i + 1].to_i)
+  n.to_s.each_char.each_cons(2) do |a, b|
+    return false if a > b
   end
 
   true
@@ -37,7 +31,5 @@ def part2(a, b)
   (a..b).count {|n| increasing?(n) && strict_adjacent_digits?(n)}
 end
 
-a = 236491
-b = 713787
-puts part1(a, b)
-puts part2(a, b)
+puts part1(236491, 713787)
+puts part2(236491, 713787)
