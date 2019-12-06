@@ -21,9 +21,27 @@ def count_orbits(map, root, depth)
   depth + obj[:children].map {|c| count_orbits(map, c, depth + 1)}.sum
 end
 
-def part1(orbits)
-  map = parse_orbits(orbits)
+def dfs(map, root, target, path)
+  obj = map[root]
+  return path if obj[:children].include?(target)
+
+  candidates = obj[:children] + [obj[:parent]] - path
+  candidates.each do |c|
+    result = dfs(map, c, target, path + [c])
+    return result if result
+  end
+
+  false
+end
+
+def part1(map)
   puts count_orbits(map, "COM", 0)
 end
 
-part1(orbits)
+def part2(map)
+  ap dfs(map, "YOU", "SAN", []).size - 1
+end
+
+map = parse_orbits(orbits)
+part1(map)
+part2(map)
