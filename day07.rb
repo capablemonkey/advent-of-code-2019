@@ -132,12 +132,8 @@ def run_sequence(ints, sequence)
 end
 
 def part1(ints)
-  results = (00000..44444).map do |i|
-    padded = i.to_s.rjust(5, '0').split('').map(&:to_i)
-    next unless padded.uniq == padded
-    next unless padded.all? {|d| d < 5}
-    ap padded.join("")
-    run_sequence(ints, padded)
+  results = [0,1,2,3,4].permutation(5).map do |seq|
+    run_sequence(ints, seq)
   end
 
   ap "max: #{results.reject(&:nil?).max}"
@@ -192,13 +188,8 @@ def run_sequence_continuous(ints, sequence)
 end
 
 def part2(ints)
-  results = (55555..99999).map do |i|
-    padded = i.to_s.rjust(5, '0').split('').map(&:to_i)
-    next unless padded.uniq == padded
-    next unless padded.all? {|d| d >= 5}
-    ap "trying: #{padded.join("")}"
-
-    run_sequence_continuous(ints, padded)
+  results = [5,6,7,8,9].permutation(5).map do |seq|
+    run_sequence_continuous(ints, seq)
   end
 
   ap "max: #{results.reject(&:nil?).max}"
