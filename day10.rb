@@ -4,12 +4,12 @@ input_lines = File.new('input/day-10.txt').readlines
 rows = input_lines.map {|l| l.strip.split('')}
 
 def parse_asteroids(rows)
-  asteroids = {}
+  asteroids = []
 
   rows.each.with_index do |row, y|
     row.each.with_index do |cell, x|
       if cell == '#'
-        asteroids[[x,y]] = true
+        asteroids.push([x,y])
       end
     end
   end
@@ -46,16 +46,11 @@ def blocks_line_of_sight?(a, b, c)
 end
 
 def asteroids_visible_from(asteroids, x, y)
-  # approach 1: draw 360 lines and check what is hit
   # appraoch 2: draw a line from this asteroid to every other one
   #   and see if you can reach it without any collision.
-  
-  # linear interpolation
-  # ask: given the line between two points, does C lie on that line?
-  
-  asteroids.keys.count do |a_x, a_y|
+  asteroids.select do |a_x, a_y|
     next if a_x == x && a_y == y
-    other_asteroids = asteroids.keys - [[x,y], [a_x, a_y]]
+    other_asteroids = asteroids - [[x,y], [a_x, a_y]]
     collision = other_asteroids.any? do |c_x, c_y|
       blocks_line_of_sight?([x,y], [a_x, a_y], [c_x, c_y])
     end
@@ -65,14 +60,55 @@ def asteroids_visible_from(asteroids, x, y)
 end
 
 def part1(asteroids)
-  counts = asteroids.keys.map.with_index do |a,n|
+  counts = asteroids.map.with_index do |a,n|
     puts n
-    asteroids_visible_from(asteroids, a[0], a[1])
+    [a, asteroids_visible_from(asteroids, a[0], a[1]).count]
   end
 
-  ap counts.max
+  ap counts.max_by {|asteroid, visible_count| visible_count }
+end
+
+def angle(x1, y1, x2, y2)
+  radians = Math.atan2(y2 - y1, x2 - x1)
+  deg = radians * (180 / Math::PI)
+
+  if deg < -90
+    deg = deg + 360.0
+  end
+
+  deg
+end
+
+def clockwise_hits(asteroids, cannon_x, cannon_y)
+  visible_asteroids = asteroids_visible_from(asteroids, cannon_x, cannon_y)
+
+  hits = visible_asteroids.
+    map {|x,y| [angle(cannon_x, cannon_y, x, y),[x,y]]}. # round to nearest degree?
+    sort_by {|angle, asteroid| angle }
+
+  hits
+end
+
+def part2(asteroids, cannon_x, cannon_y)
+  # given the cannon x,y
+  # get all visible asteroids from x,y
+  # calculate angle between visible asteroid and cannon
+  # sort visible asteroids by angle
+  asteroids_remaining = asteroids.dup - [[cannon_x, cannon_y]]
+  destroyed = []
+
+  while asteroids_remaining.size > 0
+    hits = clockwise_hits(asteroids_remaining, cannon_x, cannon_y).map {|angle, asteroid| asteroid}
+    asteroids_remaining = asteroids_remaining - hits
+    destroyed += hits
+
+    ap "removed #{hits.count} asteroids, #{asteroids_remaining.size} remaining"
+  end
+
+  ap destroyed[199]
 end
 
 asteroids = parse_asteroids(rows)
 
 part1(asteroids)
+part2(asteroids, 23, 20)
