@@ -89,24 +89,42 @@ end
 def part2(moons)
   m = moons.dup
 
-  states = Hash.new {|h,k| h[k] = []}
-  states[state_key(m)] = true
+  states = {}
+  states[key(m[0])] ||= {}
+  states[key(m[0])][key(m[1])] ||= {}
+  states[key(m[0])][key(m[1])][key(m[2])] ||= {}
+  states[key(m[0])][key(m[1])][key(m[2])][key(m[3])] = true
 
-  (0...100000000000).each do |i|
+  (0...1000000).each do |i|
     puts i if i % 10_000 == 0
     m = gravity(moons)
     m = move(moons)
 
-    k = state_key(moons)
-    if states.key?(k)
-      ap "found it!"
-      ap i
-      return
+    k1 = key(m[0])
+    k2 = key(m[1])
+    k3 = key(m[2])
+    k4 = key(m[3])
+
+    if states.key?(k1)
+      puts "hehe"
+      if states[k1].key?(k2)
+        if states[k1][k2].key?(k3)
+          if states[k1][k2][k3][k4] == true
+            ap "found it!"
+            ap i
+            return
+          end
+        end
+      end
     end
 
-    states[k] = true
+    states[k1] ||= {}
+    states[k1][k2] ||= {}
+    states[k1][k2][k3] ||= {}
+    states[k1][k2][k3][k4] = true
   end
 
+  ap states
 end
 
 moons = input_lines.map{|l| parse_moon(l)}
