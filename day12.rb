@@ -78,28 +78,33 @@ def part1(moons)
   puts m.map {|m| total_energy(m)}.sum
 end
 
+def key(m)
+  [m[:x], m[:y], m[:z], m[:vx], m[:vy], m[:vz]]
+end
+
+def state_key(moons)
+  moons.map {|m| key(m)}
+end
+
 def part2(moons)
   m = moons.dup
 
   states = Hash.new {|h,k| h[k] = []}
-  states[0].push(m.dup)
+  states[state_key(m)] = true
 
   (0...100000000000).each do |i|
-    puts i
+    puts i if i % 10_000 == 0
     m = gravity(moons)
     m = move(moons)
 
-    total_energy = m.map {|m| total_energy(m)}.sum
-
-    if states.key?(total_energy)
-      if states[total_energy].include?(m)
-        ap "found match!"
-        ap i
-        return
-      end
+    k = state_key(moons)
+    if states.key?(k)
+      ap "found it!"
+      ap i
+      return
     end
 
-    states[total_energy].push(m)
+    states[k] = true
   end
 
 end
