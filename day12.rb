@@ -83,48 +83,35 @@ def key(m)
 end
 
 def state_key(moons)
-  moons.map {|m| key(m)}
+  [moons[0], total_energy(moons)]
 end
 
 def part2(moons)
   m = moons.dup
 
   states = {}
-  states[key(m[0])] ||= {}
-  states[key(m[0])][key(m[1])] ||= {}
-  states[key(m[0])][key(m[1])][key(m[2])] ||= {}
-  states[key(m[0])][key(m[1])][key(m[2])][key(m[3])] = true
+  states[0] ||= {}
+  states[0][key(m[0])] = true
 
-  (0...1000000).each do |i|
+  (0...10000000000).each do |i|
     puts i if i % 10_000 == 0
     m = gravity(moons)
     m = move(moons)
 
-    k1 = key(m[0])
-    k2 = key(m[1])
-    k3 = key(m[2])
-    k4 = key(m[3])
+    e = m.map {|moon| total_energy(moon)}.sum
 
-    if states.key?(k1)
-      puts "hehe"
-      if states[k1].key?(k2)
-        if states[k1][k2].key?(k3)
-          if states[k1][k2][k3][k4] == true
-            ap "found it!"
-            ap i
-            return
-          end
-        end
+    if states.key?(e)
+      if states[e].key?(key(m[0]))
+        ap "found it"
+        ap i
+        return
       end
     end
 
-    states[k1] ||= {}
-    states[k1][k2] ||= {}
-    states[k1][k2][k3] ||= {}
-    states[k1][k2][k3][k4] = true
+    states[e] ||= {}
+    states[e][key(m[0])] = true
   end
 
-  ap states
 end
 
 moons = input_lines.map{|l| parse_moon(l)}
