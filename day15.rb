@@ -194,7 +194,7 @@ end
 def part1(ints)
   a = Amp.new(ints)
   a.step_until_event
-  
+
   results = [1,2,4,3].map do |i|
     dfs(a, i)
   end
@@ -202,7 +202,91 @@ def part1(ints)
   ap results
 end
 
+def bfs(computer)
+  # beginning is 0,0
+  grid = {}
+  queue = [{computer: computer.duplicate, x: 0, y: 0}]
 
-part1(ints)
-# part2(ints)
+  while !queue.empty?
+    cell = queue.shift
+    event = cell[:computer].step_until_event
 
+    directions = {
+      1 => {x: 0, y: 1},
+      2 => {x: 0, y: -1},
+      3 => {x: -1, y: 0},
+      4 => {x: 1, y: 0},
+    }
+
+    [1,2,3,4].each do |d|
+      dest = [cell[:x] + directions[d][:x], cell[:y] + directions[d][:y]]
+      next if grid[dest]
+
+      # puts "visiting #{dest}"
+
+      c = cell[:computer].duplicate
+      c.give_input(d)
+      event = c.step_until_event
+      c.ack_output
+
+      result = event[:output]
+      grid[dest] = result
+
+      next if result == 0
+
+      queue.push({computer: c.duplicate, x: dest[0], y: dest[1]})
+    end
+  end
+
+  grid
+end
+
+def print_grid(grid)
+  graph = Array.new(50) {  Array.new(70) { " " } }
+  value_map = {1 => ' ', 0 => '#', 2 => 'O'}
+  grid.each do |coor, value|
+    graph[coor[1] + 25][coor[0] + 25] = value_map[value]
+  end
+  puts graph.map { |r| r.join('')}.join("\n")
+end
+
+def spread_oxygen(grid)
+  g = grid.dup
+
+  oxygens = g.select {|k,v| v == 2}
+
+  directions = {
+    1 => {x: 0, y: 1},
+    2 => {x: 0, y: -1},
+    3 => {x: -1, y: 0},
+    4 => {x: 1, y: 0},
+  }
+
+  oxygens.each do |coor, _|
+    directions.values.each do |d|
+      neighbor = [coor[0] + d[:x], coor[1] + d[:y]]
+      g[neighbor] = 2 if g[neighbor] == 1
+    end
+  end
+
+  g
+end
+
+def part2(ints)
+  # discover map with BFS
+  a = Amp.new(ints)
+  grid = bfs(a)
+  ap grid
+  print_grid(grid)
+
+  # given map and oxygen pocket, fill map with oxygen
+  counter = 0
+  until grid.all? {|k,v| v == 2 || v == 0} do
+    grid = spread_oxygen(grid)
+    counter += 1
+    puts counter
+  end
+end
+
+# part1(ints)
+part2(ints)
